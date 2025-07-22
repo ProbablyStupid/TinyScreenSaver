@@ -38,5 +38,5 @@ jobs:
     - name: Upload Maven / Java build artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: TinyScreenSaver-build-artifact
+        name: TinyScreenSaver.jar
         path: TinyScreenSaver/target/*.jar
