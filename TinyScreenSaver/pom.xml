@@ -34,7 +34,7 @@
 					<archive>
 						<manifest>
 							<addClasspath>true</addClasspath>
-							<mainClass>com.arvsoftware.opensource.tinyscreensaver.app.TinyScrenSaver</mainClass>
+							<mainClass>com.arvsoftware.opensource.tinyscreensaver.app.TinyScreenSaver</mainClass>
 						</manifest>
 					</archive>
 				</configuration>

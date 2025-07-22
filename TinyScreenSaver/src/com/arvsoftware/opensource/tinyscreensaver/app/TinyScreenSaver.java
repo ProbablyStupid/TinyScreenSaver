@@ -19,21 +19,22 @@ import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+import javax.swing.Timer;
 import javax.swing.WindowConstants;
 
 public class TinyScreenSaver {
 	
 	// for two seconds, you can move the mouse without it shutting down the program.
 	public double timeout = 2000;
-	public double timeElapsed = 0;
-	public double startTime = 0;
+	public double startTime = System.currentTimeMillis();
 	
 	// settings that may get a config file in a later version
 	public boolean hideCursor = true;
 	public boolean exitOnMouseMove = true;
 	
 	public TinyScreenSaver() {
-		boolean enabled = true;
+		System.out.println("Tiny Screen Saver - By ProbablyStupid");
 		
 		JFrame frame = new JFrame();
 		Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -65,7 +66,11 @@ public class TinyScreenSaver {
 				image = ImageIO.read(TinyScreenSaver.class.getResourceAsStream("sosp.png"));
 			}
 			
-		} catch (IOException | URISyntaxException e) {
+			if (image != null) {
+				System.out.println("Loaded image successfully!");
+			}
+			
+		} catch (IOException | URISyntaxException | IllegalArgumentException | NullPointerException e) {
 			System.out.println("Could not read image!");
 			e.printStackTrace();
 		}
@@ -75,31 +80,26 @@ public class TinyScreenSaver {
 			@Override
 			public void mouseReleased(MouseEvent e) {
 				System.exit(0);
-				
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent e) {
 				System.exit(0);
-				
 			}
 			
 			@Override
 			public void mouseExited(MouseEvent e) {
 				System.exit(0);
-				
 			}
 			
 			@Override
 			public void mouseEntered(MouseEvent e) {
-				System.exit(0);
-				
+				// There must NOT be a system.exit(0); here because the mouse enters the window on startup, making it immediately close
 			}
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				System.exit(0);
-				
 			}
 		});
 		
@@ -107,6 +107,7 @@ public class TinyScreenSaver {
 			
 			@Override
 			public void mouseMoved(MouseEvent e) {
+				double timeElapsed = System.currentTimeMillis() - startTime;
 				if (timeElapsed >= timeout && exitOnMouseMove) {
 					System.out.println("Exited after : " + timeElapsed + " Miliseconds");
 					System.exit(0);
@@ -163,36 +164,67 @@ public class TinyScreenSaver {
 		frame.repaint();
 		
 		// generate a random direction between - 2 and 2
-		int dirx = (int) Math.round((Math.random() * 4)) + 1, diry = (int) Math.round((Math.random() * 4)) + 1;
+//		int dirx = (int) Math.round((Math.random() * 4)) + 1, diry = (int) Math.round((Math.random() * 4)) + 1;
+		
+		final int[] direction = {(int) (Math.round((Math.random() * 4)) + 1), (int) (Math.round((Math.random() * 4)) + 1)};
 		int limx = screenDimension.width - imageLabel.getWidth(), limy = screenDimension.height - imageLabel.getHeight();
 		
-		
-		this.startTime = System.currentTimeMillis();
-		
 		// draw loop
-		while (enabled) {
-			imageLabel.setLocation(imageLabel.getX() + dirx, imageLabel.getY() + diry);
+//		while (enabled) {
+//			imageLabel.setLocation(imageLabel.getX() + dirx, imageLabel.getY() + diry);
+//			
+//			if (imageLabel.getX() >= limx || imageLabel.getX() <= 0) {
+//				dirx = -dirx;
+//			}
+//			if (imageLabel.getY() >= limy || imageLabel.getY() <= 0) {
+//				diry = -diry;
+//			}
+//			
+//			try {
+//				Thread.sleep(10);
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+//			
+//			this.timeElapsed += (System.currentTimeMillis() - this.startTime);
+//			this.startTime = System.currentTimeMillis();
+//			System.out.println("Running with status " + enabled);
+//		}
+		
+		Timer myTimer = new Timer(10, e -> {
+			imageLabel.setLocation(imageLabel.getX() + direction[0], imageLabel.getY() + direction[1]);
 			
 			if (imageLabel.getX() >= limx || imageLabel.getX() <= 0) {
-				dirx = -dirx;
+				direction[0] = -direction[0];
 			}
 			if (imageLabel.getY() >= limy || imageLabel.getY() <= 0) {
-				diry = -diry;
+				direction[1] = -direction[1];
 			}
-			
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
-			
-			this.timeElapsed += (System.currentTimeMillis() - this.startTime);
-			this.startTime = System.currentTimeMillis();
-		}
+		});
+		myTimer.start();
 	}
 	
 	public static void main(String[] args) {
-		TinyScreenSaver myTinyScreenPlayer = new TinyScreenSaver();
+		Object lock = new Object();
+		SwingUtilities.invokeLater(() -> {
+			try {
+				new TinyScreenSaver();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			synchronized (lock) {
+				lock.notify();
+			}
+		});
+		
+		synchronized (lock) {
+			try {
+				lock.wait();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
 	
 }
