@@ -57,9 +57,11 @@ public class TinyScreenSaver {
 			File jarPath = jarFilepath.getParentFile();
 			File imageFile = new File(jarPath, "screensaver.png");
 			if (imageFile.exists() && imageFile.isFile()) {
+				System.out.println("found screensaver.png!");
 				image = ImageIO.read(imageFile);
 			} else {
 				// default to a built-in default image
+				System.out.println("screensaver.png not found, using builtin alternative!");
 				image = ImageIO.read(TinyScreenSaver.class.getResourceAsStream("sosp.png"));
 			}
 			
