@@ -1,4 +1,4 @@
-package app;
+package com.arvsoftware.opensource.tinyscreensaver.app;
 
 import java.awt.Color;
 import java.awt.Dimension;
