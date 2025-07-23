@@ -12,7 +12,10 @@ import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.net.URISyntaxException;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
@@ -22,6 +25,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 import javax.swing.WindowConstants;
+
+import com.arvsoftware.opensource.tinyscreensaver.config.ConfigLoader;
 
 public class TinyScreenSaver {
 	
@@ -35,6 +40,18 @@ public class TinyScreenSaver {
 	
 	public TinyScreenSaver() {
 		System.out.println("Tiny Screen Saver - By ProbablyStupid");
+		
+		if (new File("screensaver.conf").exists()) {
+			Map<String, String> configMap = ConfigLoader.loadConfigFile("screensaver.conf");
+			hideCursor = Boolean.parseBoolean(configMap.get("hideCursor"));
+			exitOnMouseMove = Boolean.parseBoolean(configMap.get("exitOnMouseMove"));
+		}
+		// alternative linux config file
+		else if (new File("/etc/tinyscreensaver.conf").exists()) {
+			Map<String, String> configMap = ConfigLoader.loadConfigFile("screensaver.conf");
+			hideCursor = Boolean.parseBoolean(configMap.get("hideCursor"));
+			exitOnMouseMove = Boolean.parseBoolean(configMap.get("exitOnMouseMove"));
+		}
 		
 		JFrame frame = new JFrame();
 		Dimension screenDimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -79,17 +96,20 @@ public class TinyScreenSaver {
 			
 			@Override
 			public void mouseReleased(MouseEvent e) {
-				System.exit(0);
+				if (exitOnMouseMove)
+					System.exit(0);
 			}
 			
 			@Override
 			public void mousePressed(MouseEvent e) {
-				System.exit(0);
+				if (exitOnMouseMove)
+					System.exit(0);
 			}
 			
 			@Override
 			public void mouseExited(MouseEvent e) {
-				System.exit(0);
+				if (exitOnMouseMove)
+					System.exit(0);
 			}
 			
 			@Override
@@ -99,7 +119,8 @@ public class TinyScreenSaver {
 			
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				System.exit(0);
+				if (exitOnMouseMove)
+					System.exit(0);
 			}
 		});
 		
